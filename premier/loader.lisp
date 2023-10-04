@@ -1,0 +1,5 @@
+(load "ec_schnorr/ec_arith.lisp")
+(load "ec_schnorr/j0.lisp")
+(load "ec_schnorr/schnorr.lisp")
+(load "src/aux.lisp")
+(load "src/st2st.lisp")
