@@ -105,10 +105,10 @@
           decrypted (uiop:split-string (crypt:aes-decrypt (read-parse "step-4-message")
                                                           session-key)
                                        :separator " "))
-    (format t "~2%~4tR_A = ~a;~%~4tR_B = ~a." (car decrypted) (cadr decrypted))
     (when (not (equal alice-str (car decrypted)))
       (format t "~2%Строка R_A, полученная от Боба, не совпадает со строкой, посланной на 3-м этапе! Экстренное завершение протокола.~%")
       (return-from step-5))
+    (format t "~2%~4tR_A = ~a;~%~4tR_B = ~a." (car decrypted) (cadr decrypted))
     (format t "~2%[5.2] -- Если строка R_A, полученная от Боба, -- это та самая строка, которую она посылала
          Бобу на этапе (3), она, используя K, шифрует R_B и посылает её Бобу.")
     (setq encrypted (crypt:aes-encrypt (cadr decrypted) session-key))
@@ -122,10 +122,10 @@
     (setq session-key (uiop:read-file-line "session-key")
           bob-str (uiop:read-file-line "bob-random-string")
           decrypted (crypt:aes-decrypt (read-parse "step-5-message") session-key))
-    (format t "~2%~4tR_B = ~a." decrypted)
     (when (not (equal bob-str decrypted))
       (format t "~2%Строка R_B, полученная от Алисы, не совпадает со строкой, посланной на 4-ом этапе! Экстренное завершение протокола.~%")
       (return-from step-6))
+    (format t "~2%~4tR_B = ~a." decrypted)
     (format t "~2%[6.2] -- Если строка R_B, полученная от Алисы, -- это та самая строка, которую он послал
          ей на этапе (4), то протокол завершён. ") t))
 
@@ -140,4 +140,5 @@
   (step-1) (stop) (step-2) (stop) (step-3) (stop)
   (step-4) (stop)
   (when (not (step-5)) (return-from eke-rsa)) (stop)
-  (when (not (step-6)) (return-from eke-rsa)) (stop))
+  (when (not (step-6)) (return-from eke-rsa))
+  (format t "~2%Протокол завершён успешно.") t)
