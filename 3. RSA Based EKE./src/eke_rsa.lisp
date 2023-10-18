@@ -13,13 +13,13 @@
 
 (defun step-1-aux ()
   (let ((key-len))
-    (format t "~%Введите длину модуля RSA l (l > 15, l = 2^m, по умолчанию l = 1024): ")
+    (format t "~%Введите длину модуля RSA l (l > 16, l = 2^m, по умолчанию l = 1024): ")
     (tagbody try-again
        (setq key-len (parse-integer (read-line) :junk-allowed t))
        (when (not (integerp key-len))
          (setq key-len 1024))
        (when (or (null key-len) (not (and (zerop (logand key-len (1- key-len)))
-                                          (> key-len 15))))
+                                          (> key-len 16))))
          (format t "~%Некорректное значение l! Введите l снова: ")
          (go try-again))) key-len))
 

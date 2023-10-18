@@ -164,6 +164,9 @@
 (defun generate-prime (target-len)
   (when (not (is-pow-of-2? target-len))
     (return-from generate-prime))
+  (when (= 16 target-len)
+    (return-from generate-prime (nth (random (length *base-primes*))
+                                     *base-primes*)))
   (let ((prime) (s) (prime?) (req-len (- target-len 16)))
     (tagbody pick-prime
        (setq prime (nth (random (length *base-primes*)) *base-primes*))

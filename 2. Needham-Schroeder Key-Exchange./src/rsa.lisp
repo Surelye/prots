@@ -40,5 +40,6 @@
         (aux::write-to-file (list name d n) priv-filename)
         (format t "Приватный RSA-ключ пользователя ~s был записан в файл ~s.~%"
                 name priv-filename)
-        (format t "    Публичный ключ: 0x~x;
-    Приватный ключ: 0x~x.~%" e d) (terpri)))))
+        (format t "~%    Публичный ключ: 0x~x;
+    Приватный ключ: 0x~x;
+    Модуль        : 0x~x.~%" e d n) (terpri)))))
