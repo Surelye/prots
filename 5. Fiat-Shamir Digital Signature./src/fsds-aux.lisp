@@ -1,7 +1,10 @@
 (defpackage :fsds-aux
   (:use :cl)
   (:export :get-bit-len :get-c
-           :form-I :get-j))
+           :form-I :get-j
+           :get-t :get-message
+           :compute-ys :read-parse-l))
+
 
 (in-package :fsds-aux)
 
@@ -50,36 +53,14 @@
          (go try-again))) j))
 
 
-(defun compute-sjs (I j p q n)
-  (let ((sjs) (val) (roots) (indices))
-    (do ((k j (1- k))) ((zerop k))
-      (setq val (crypt:f (concatenate 'string I (write-to-string k)) n))
-      (when (= 1 (aux::compute-jacobi val n))
-        (setq val (mod (cadr (aux::ext-gcd val n)) n)
-              roots (aux::sqrt-Zn val p q n))
-        (when roots
-          (setq sjs (cons (list k (apply #'min roots)) sjs)
-                indices (cons k indices)))))
-    (when sjs
-      (aux::write-to-file (list (caar (last sjs))) "max-j")
-      (aux::write-to-file indices "indices")) sjs))
-
-
-(defun write-smartcard (smartcard &optional (filename "smartcard"))
-  (with-open-file (out filename :direction :output :if-exists :supersede
-                                :if-does-not-exist :create)
-    (dolist (datum smartcard)
-      (if (atom datum)
-          (format out "~a~%" datum)
-          (format out "~a ~a~%" (car datum) (cadr datum))))))
-
-
 (defun get-t ()
   (let ((t-val))
     (format t "~%Введите количество раундов подписи t (t > 4, по умолчанию 5): ")
     (tagbody try-again
        (setq t-val (read-line))
-       (when (zerop (length t-val)) (return-from get-t 5))
+       (when (zerop (length t-val))
+         (aux::write-to-file (list 5) "num-rounds")
+         (return-from get-t 5))
        (setq t-val (parse-integer t-val :junk-allowed t))
        (when (or (null t-val) (> 5 t-val))
          (format t "~%Некорректное значение количества раундов подписи! Попробуйте ввести t снова: ")
@@ -97,3 +78,19 @@
          (format t "~%Файла с заданным именем не существует! Попробуйте ввести имя файла с сообщением снова: ")
          (go try-again)))
     (uiop:read-file-lines filename)))
+
+
+(defun compute-ys (rs sjs first-bits indices n)
+  (let* ((t-val (length rs)) (ys) (cur-bits) (prod 1)
+         (j (floor (length first-bits) t-val)))
+    (do ((k 0 (1+ k))) ((= t-val k) (reverse ys))
+      (setq cur-bits (subseq first-bits (* j k) (* j (1+ k))))
+      (do ((i 0 (1+ i))) ((= (length indices) i))
+        (when (not (zerop (digit-char-p (char cur-bits (1- (nth i indices))))))
+          (setq prod (mod (* prod (nth i sjs)) n))))
+      (setq ys (cons (mod (* (nth k rs) prod) n) ys)
+            prod 1))))
+
+
+(defun read-parse-l (filename)
+  (mapcar #'parse-integer (uiop:read-file-lines filename)))

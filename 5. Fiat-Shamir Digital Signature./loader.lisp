@@ -2,3 +2,4 @@
 (load "src/aux.lisp")
 (load "src/crypt.lisp")
 (load "src/fsds-aux.lisp")
+(load "src/fsds.lisp")
