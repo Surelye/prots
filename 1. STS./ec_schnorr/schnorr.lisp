@@ -21,20 +21,9 @@
 (defun schnorr-generate-keys (key-length filename-prefix &optional (m-sec 30))
   (let ((l) (lQ) (pub-filename) (priv-filename))
     (destructuring-bind (p b r Q)
-        (gen-ec::generate-curve key-length m-sec)
+        (gen-ec:generate-curve key-length m-sec)
       (setq l (+ 2 (random (- r 2)))
             lQ (ec-arith::scalar-product l Q p))
-#|
-      (format t "~%Был сгенерирован открытый ключ проверки подписи:
-    характеристика поля p = 0x~x;
-    коэффициент b уравнения ЭК = 0x~x;
-    порядок r циклической подгруппы = 0x~x;
-    образующий элемент Q порядка r = (~{0x~a~^, ~});
-    точка P = lQ = (~{0x~a~^, ~}).~%"
-              p b r Q lQ)
-      (format t "~%Был сгенерирован секретный ключ формирования подписи:
-    показатель l = 0x~x.~%" l)
-|#
       (format t "~%Значение открытого ключа проверки подписи пользователя ~s было записано в файл ~s.~%"
               (string-upcase filename-prefix)
               (setq pub-filename (concatenate 'string filename-prefix "-sig-pub-key")))
@@ -136,14 +125,6 @@
                                      (ec-arith::scalar-product e (get-minus-P lQ p) p)
                                      p)
             e? (sxhash (cons R? m)))
-#|
-      (format t "~%Для проверки подписи получатель:
-    [1] -- Вычисляет точку R' = (~{0x~x~^, ~});
-    [2] -- Вычисляет хеш-функцию e' = h(m, R') = 0x~x;
-    [3] -- Проверяет, что e = e' (mod r):
-        e  = h(m, R)  = 0x~x;
-        e' = h(m, R') = 0x~x.~%" R? e? e e?)
-|#
       (if (= e? e)
           (format t "~%Равенство выполняется. Подпись корректна.~%")
           (format t "~%Равенство не выполняется. Файл с сообщением или параметры подписи были изменены.~%")))))
