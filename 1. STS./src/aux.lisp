@@ -1,5 +1,9 @@
 (defpackage #:aux
-  (:use :cl))
+  (:use #:cl)
+  (:export #:while
+           #:ext-gcd
+           #:mod-expt
+           #:miller-rabin))
 
 (in-package #:aux)
 
