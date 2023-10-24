@@ -78,7 +78,7 @@
 
 (defun step-1-sign (rounds)
   (let ((n (aux::read-parse "modulo")) (r) (rs) (x) (xs))
-    (format t "~2%[1] -- Алиса выбирает случайные r_1, ..., r_t из [0, n) и вычисляет x_i = (r_i)^2 (mod n):~%")
+    (format t "~%[1] -- Алиса выбирает случайные r_1, ..., r_t из [0, n) и вычисляет x_i = (r_i)^2 (mod n):~%")
     (do ((i 0 (1+ i))) ((= rounds i))
       (setq r (random n)
             rs (cons r rs)
