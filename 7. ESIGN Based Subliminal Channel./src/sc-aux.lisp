@@ -149,7 +149,7 @@
          (encrypted (crypt:aes-encrypt subliminal-message session-key))
          (x-sublim))
     (when (> encrypted r)
-      (format t "~%Скрытое сообщение должно быть меньше r! Завершение протокола.")
+      (format t "~2%Скрытое сообщение должно быть меньше r! Завершение протокола.")
       (return-from pick-x-subliminal nil))
     (setq p (aux:read-parse "p") q (aux:read-parse "q"))
     (setq x-sublim (+ encrypted (* (1+ (random (1- (* p q)))) r)))

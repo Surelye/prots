@@ -84,28 +84,28 @@
     (step-4-5-verify-message-usual (sc-aux:concat message)) t))
 
 
-(defun step-3-sign-message-subliminal (subliminal-message)
+(defun step-4-sign-message-subliminal (subliminal-message)
   (let ((x-sub) (encrypted))
-    (format t "~2%[3] -- Чтобы скрыть сообщение M, используя сообщение M', Алиса вычисляет
+    (format t "~2%[4] -- Чтобы скрыть сообщение M, используя сообщение M', Алиса вычисляет
        x' = M + ur (u из [1, pq - 1]): ")
-    (setq x-sub (sc-aux:pick-x-subliminal subliminal-message)
-          encrypted (aux:read-parse "subliminal-message-encrypted"))
+    (setq x-sub (sc-aux:pick-x-subliminal subliminal-message))
     (when (null x-sub)
-      (return-from step-3-sign-message-subliminal nil))
+      (return-from step-4-sign-message-subliminal nil))
+    (setq encrypted (aux:read-parse "subliminal-message-encrypted"))
     (format t "~2%~4tE(M) = 0x~x;~%~4tx'   = 0x~x;~%" encrypted x-sub) t))
 
 
-(defun step-4-sign-message-subliminal (innocuous-message)
+(defun step-5-sign-message-subliminal (innocuous-message)
   (let ((w-sub))
-    (format t "~%[4] -- Далее она вычисляет w как наибольшее целое выражения
+    (format t "~%[5] -- Далее она вычисляет w как наибольшее целое выражения
        (H(M') - x'^k (mod n)) / (pqr): ")
     (setq w-sub (sc-aux:compute-w-subliminal innocuous-message))
     (format t "~2%~4tw' = 0x~x;~%" w-sub) t))
 
 
-(defun step-5-sign-message-subliminal ()
+(defun step-6-sign-message-subliminal ()
   (let ((s-sub))
-    (format t "~%[5] -- Затем Алиса аналогично вычисляет s с использованием модифицированных x' и w': ")
+    (format t "~%[6] -- Затем Алиса аналогично вычисляет s с использованием модифицированных x' и w': ")
     (setq s-sub (sc-aux:compute-s-subliminal))
     (format t "~2%~4ts  = 0x~x.~%" s-sub)))
 
@@ -117,10 +117,12 @@
     (setq innocuous-message (sc-aux:concat (sc-aux:get-message)))
     (format t "~2%[2] -- Ввод скрываемого сообщения: ~%")
     (setq subliminal-message (sc-aux:concat (sc-aux:get-message)))
-    (when (null (step-3-sign-message-subliminal subliminal-message))
+    (format t "~2%[3] -- Определение параметра безопасности k:~%")
+    (sc-aux:get-k)
+    (when (null (step-4-sign-message-subliminal subliminal-message))
       (return-from sign-message-subliminal nil)) (stop)
-    (step-4-sign-message-subliminal innocuous-message) (stop)
-    (step-5-sign-message-subliminal) t))
+    (step-5-sign-message-subliminal innocuous-message) (stop)
+    (step-6-sign-message-subliminal) t))
 
 
 (defun step-3-verify-message-subliminal (s)
