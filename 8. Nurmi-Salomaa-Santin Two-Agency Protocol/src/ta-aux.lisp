@@ -48,10 +48,10 @@
 (defun gen-voters&ts ()
   "Шаг 1. Функция генерирует список избирателей и для каждого избирателя
    опознавательную метку t_i."
-  (let ((n (aux:read-parse "n")) voters ts)
+  (let* ((n (aux:read-parse "n")) voters ts
+         (len (length (write-to-string n))))
     (loop for j from n downto 1
-          do (setq voters (cons (concatenate 'string "Голосующий №"
-                                             (write-to-string j)) voters)
+          do (setq voters (cons (format nil "Голосующий №~v,'0d" len j) voters)
                    ts (cons (crypt:random-string *num-bytes*) ts)))
     (aux:write-to-file voters "voters")
     (aux:write-to-file     ts     "ts") (list voters ts)))
@@ -76,7 +76,7 @@
 
 (defun form-signatures (to-sign p q n k)
   (mapcar #'(lambda (vote)
-              (sig::sign-message vote p q n k)) to-sign))
+              (sig:sign-message vote p q n k)) to-sign))
 
 
 (defun form-ciphertexts (ts sigs keys)
@@ -202,13 +202,18 @@
   (let ((sigs (decrypt-received num-users))
         (Bs (collect-Bs num-users))
         (n (aux:read-parse "sig/n"))
-        (k (aux:read-parse "sig/k")))
+        (k (aux:read-parse "sig/k"))
+        (broken 0))
     (setq sigs (mapcar #'(lambda (decrypted)
                            (uiop:split-string decrypted :separator " ")) sigs)
           sigs (mapcar #'(lambda (lst-decrypted)
-                           (parse-integer (cadr lst-decrypted))) sigs))
-    (every #'(lambda (B sig)
-               (sig::verify-message B sig n k)) Bs sigs)))
+                           (handler-case (parse-integer (cadr lst-decrypted))
+                             (error () (incf broken) t))) sigs))
+    (list
+     (every #'(lambda (B sig)
+                (if sig
+                    t
+                    (sig:verify-message B sig n k))) Bs sigs) broken)))
 
 
 (defun make-keyword (num)
@@ -216,8 +221,10 @@
 
 
 (defun count-voices (num-users)
-  (unless (verify-sigs num-users)
-    (return-from count-voices nil))
+  (destructuring-bind (correct-sigs? num-broken) (verify-sigs num-users)
+    (format t "~2%Количество ошибок при расшифровании: ~d." num-broken)
+    (unless correct-sigs?
+      (return-from count-voices nil)))
   (let ((voices (collect-Bs num-users))
         (election-results (loop for j from 0 below (* 2 (1+ (length *candidates*)))
                                 if (evenp j)

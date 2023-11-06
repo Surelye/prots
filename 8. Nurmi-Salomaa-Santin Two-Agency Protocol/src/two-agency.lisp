@@ -86,12 +86,12 @@
         (step-2-substep-2 Bs          ) (stop)
         (step-2-substep-3 sigs        ) (stop)
         (step-2-substep-4 ciphers     ) (stop)
-        (step-2-substep-5 num-users   ) t))))
+        (step-2-substep-5 num-users   ) (stop) t))))
 
 
 (defun step-3-substep-1 ()
   (format t "~2%[3.1] -- Агенство получает шифртексты с тегами. По ним оно определяет, что сообщение пришло
-         от легитимного пользователя,но не может определить, ни от какого, ни как он проголосовал.")
+         от легитимного пользователя, но не может определить, ни от какого, ни как он проголосовал.")
   (let ((correct-tags? (ta-aux:compare-tags)))
     (format t "~2%~4tРезультат сравнения отправленных стороной V меток и меток пользователей: ~a.~%"
             correct-tags?) correct-tags?))
@@ -112,7 +112,7 @@
 
 
 (defun step-3 ()
-  (format t "~2%~4tШаг [3]. A (агенство)")
+  (format t "~%~4tШаг [3]. A (агенство)")
   (when (not (step-3-substep-1))
     (format t "~%Не все значения меток совпали! Завершение протокола.")
     (return-from step-3 nil)) (stop)
@@ -153,7 +153,7 @@
          (list-voices (loop for j from 0 below (length election-results)
                             when (oddp j)
                               collect (nth j election-results))))
-    (format t "~2%Результаты выборов:~%")
+    (format t "~2%Результаты выборов (с учётом \"битых\" голосов):~%")
     (dotimes (j (length ta-aux:*candidates*) (terpri))
       (format t "~%~4tКандидат ~a набрал ~d голос(а/ов);"
               (nth j ta-aux:*candidates*) (nth j list-voices)))
@@ -191,6 +191,7 @@
 
 
 (defun nss ()
+  (ignore-errors (uiop:run-program "make"))
   (format t "~%~25t[ПРОТОКОЛ ДВУХ АГЕНСТВ]~%")
   (step-1) (step-2)
   (step-3) (step-4)
