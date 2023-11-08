@@ -108,7 +108,7 @@
     (dotimes (j len-ciph (terpri))
       (setq pair (nth j ciphertexts))
       (format t "~%~4tp_{~v,'0d} = ~a, 0x~x;"
-              len (1+ j) (car pair) (cadr pair)))))
+              len (1+ j) (car pair) (parse-integer (cadr pair))))))
 
 
 (defun step-3 ()
@@ -144,7 +144,8 @@
     (dotimes (j len-decr (terpri))
       (setq pair (nth j decrypted))
       (format t "~%~4tp_{~v,'0d} = ~a, 0x~x;"
-              len (1+ j) (car pair) (cadr pair)))))
+              len (1+ j) (car pair) (handler-case (parse-integer (cadr pair))
+                                      (error () (cadr pair)))))))
 
 
 (defun step-5-substep-3 (num-users)
