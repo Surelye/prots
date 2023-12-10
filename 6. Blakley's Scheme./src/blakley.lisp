@@ -15,7 +15,7 @@
   (format t "~%Реализация (k, n)-пороговой схемы. Секрет M разделяется между n сторонами так, чтобы
 любые k из них могли восстановить секрет.~%")
   (bl-aux:get-n-k) (bl-aux:get-M)
-    (bl-aux:gen-p) (bl-aux:gen-coords) t)
+  (bl-aux:gen-p) (bl-aux:gen-coords) t)
 
 
 (defun share-secret ()

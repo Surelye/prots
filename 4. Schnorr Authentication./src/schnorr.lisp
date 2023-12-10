@@ -143,7 +143,7 @@
 (defun print-status (status-code args)
   (cond ((eql 'GENERATED status-code)
          (destructuring-bind (p q g w y) args
-           (format t "Были сгенерированы параметры:
+           (format t "~%Были сгенерированы параметры:
   простое число p =~%    0x~x;
   простое число q =~%    0x~x;
   генератор g порядка q =~%    0x~x;
@@ -152,7 +152,7 @@
                    p q g w y)))
         ((eql 'EXTRACTED status-code)
          (destructuring-bind (file-pub file-priv p q g y w) args
-           (format t "Из файлов ~s и ~s были извлечены параметры:
+           (format t "~%Из файлов ~s и ~s были извлечены параметры:
   простое число p =~%    0x~x;
   простое число q =~%    0x~x;
   генератор g порядка q =~%    0x~x;
@@ -161,11 +161,11 @@
                    file-pub file-priv p q g y w)))
         ((eql 'AUTH status-code)
          (destructuring-bind (r x e s x?) args
-           (format t "[Протокол проверки подлинности]:
-  1. Алиса выбирает случайное число r (r < q) =~%    0x~x;
-  2. Алиса вычисляет x = g^r (mod p) и посылает x Бобу = ~%    0x~x;
-  3. Боб выбирает случайное число e из диапазона [0; 2^t - 1] и отправляет его Алисе =~%    0x~x;
-  4. Алиса вычисляет s = r + we (mod q) и посылает s Бобу =~%    0x~x;
+           (format t "[Протокол проверки подлинности]:~%
+  1. Алиса выбирает случайное число r (r < q) =~%    0x~x;~%
+  2. Алиса вычисляет x = g^r (mod p) и посылает x Бобу = ~%    0x~x;~%
+  3. Боб выбирает случайное число e из диапазона [0; 2^t - 1] и отправляет его Алисе =~%    0x~x;~%
+  4. Алиса вычисляет s = r + we (mod q) и посылает s Бобу =~%    0x~x;~%
   5. Подтверждение. Боб проверяет, что x = (g^s) * (y^e) (mod p) =~%    0x~x.~%~%"
                    r x e s x?)))
         (t (return-from print-status))))
@@ -179,13 +179,13 @@
 
 (defun opter ()
   (let ((choice) (opt))
-    (format t "Режимы работы:
+    (format t "~%Режимы работы:
 [1] -- Битовая длина p и q =  768 и 120, генерация g разложением;
 [2] -- Битовая длина p и q = 1024 и 160, генерация g разложением;
 [3] -- Битовая длина p и q =  768 и 120, генерация g по dss;
 [4] -- Битовая длина p и q = 1024 и 160, генерация g по dss;
 [0] -- Выход.~%")
-    (format t "Ваш выбор: ")
+    (format t "~%Ваш выбор: ")
     (macro::while (not (member (setq choice (read)) '(1 2 3 4 0)))
       (format t "Некорректный ввод! Попробуйте снова: "))
     (cond ((= 1 choice) (setf p-bit-length  768 q-bit-length 120 opt 'F-FAC))
@@ -205,9 +205,9 @@
   (let* ((q) (p) (g) (w) (y) (gen-g-opt))
     (setq gen-g-opt (opter))
     (when (null gen-g-opt) (return-from generate-keys))
-    (time (macro::while (null (setq q (gen-q)
+    (macro::while (null (setq q (gen-q)
                                     p (gen-p q)
-                                    g (gen-g-caller p q gen-g-opt)))))
+                                    g (gen-g-caller p q gen-g-opt))))
     (setq w (1+ (random (1- q)))
           y (aux::mod-expt g (- q w) p))
     (print-status 'GENERATED (list p q g w y))
